@@ -1,3 +1,3 @@
-# blockchain-programming-esilv2020
+# blockchain_programming_esilv2020
 
 test
