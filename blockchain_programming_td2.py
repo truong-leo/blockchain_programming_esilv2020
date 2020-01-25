@@ -3,6 +3,24 @@ import numpy as np
 import hashlib
 import os
 
+def adjust_length_128bits(binary_number):
+    while (len(binary_number) != 128):
+        binary_number = "0" + binary_number
+    return binary_number
+
+def adjust_length_256bits(binary_number):
+    while (len(binary_number) != 256):
+        binary_number = "0" + binary_number
+    return binary_number
+
+def adjust_length_11bits(binary_number):
+    while (len(binary_number) != 11):
+        binary_number = "0" + binary_number
+    return binary_number
+
+
+
+
 # Créer un repo github et le partager avec le prof : OK
 # Créer un programme python interactif en ligne de commande : OK
 
@@ -15,12 +33,7 @@ print("Le chiffre random est : " + "\n" + str(random) + "\n")
 # Nombre random en binaire
 
 random_bin = bin(random)[2:]
-
-
-while len(random_bin) != 128: # J'ai rajouté cette boucle car defois la longueur du random_bin n'est pas de 128 bits (je sais pas pourquoi)
-    random = secrets.randbits(128)
-    random_bin = bin(random)[2:]
-    print("hop")
+random_bin = adjust_length_128bits(random_bin) # Rajout de zero si besoin afin d'obtenir une longueur de 128 bits
 
 print("Le chiffre sous forme binaire (128 bits) : " + "\n" + str(random_bin) + "\n")
 
@@ -31,9 +44,8 @@ random_hash = hashlib.sha256(str(random_bin).encode('utf-8')).hexdigest()
 print("Hashage en SHA256 en hex" + "\n" + random_hash + "\n")
 
 random_hash_bin = bin(int(random_hash, base=16))[2:]
+random_hash_bin = adjust_length_256bits(random_hash_bin)
 print("Hashage en SHA256 en bin" + "\n" + random_hash_bin + "\n")
-
-
 
 # ===== Représenter cette seed en binaire et le découepr en lot de 11 bits =====
 
@@ -55,8 +67,6 @@ lot10 = seed_bin[99:110]
 lot11 = seed_bin[110:121]
 lot12 = seed_bin[121:132]
 
-print(lot1)
-print(lot12)
 
 # ===== Attribuer à chaque lot un mot selon la liste BIP 39 et afficher la seed en mnémonique =====
 
@@ -80,6 +90,24 @@ print("Voici la liste mnémonique du seed : " + "\n" + lot1_mot + ', ' + lot2_mo
 
 # ===== Permettre l'import d'une seed mnémonique =====
 
+seed_import_bin = ""
+
+for i in range(1, 13):
+
+    j = 0
+    print("Rentrez le mot numéro : " + str(i))
+    mot_temp = input()
+    print(mot_temp)
+    index_bip39 = 0
+
+    while (str(mot_temp) != str(liste_bip_39[j])):
+        index_bip39 = j + 1
+        j = j + 1
+        print(j)
+
+    seed_import_bin = seed_import_bin + str(adjust_length_11bits(bin(j)[2:]))
+
+print("Voici le seed importé (en 132 bits) : " + seed_import_bin)
 
 # ===== Importer une seed et vérifier son format =====
 
@@ -87,6 +115,7 @@ print("Voici la liste mnémonique du seed : " + "\n" + lot1_mot + ', ' + lot2_mo
 
 # ===== Extraire la master private key et le chain code =====
 
+"""
 seed_bin128 = seed_bin[0:128]
 
 seed_bin128_hash = hashlib.sha512(str(seed_bin).encode('utf-8')).hexdigest()
@@ -99,8 +128,7 @@ master_private_key = seed_bin128_hash_bin[0:256]
 master_chain_code = seed_bin128_hash_bin[256:512]
 
 print(master_private_key + "\n" + master_chain_code)
-
-print("test = " + str(len(random_hash_bin)))
+"""
 
 """
 print("Rentrez du texte")
