@@ -1,5 +1,4 @@
 import secrets
-import numpy as np
 import hashlib
 import os
 
@@ -22,6 +21,9 @@ def adjust_length_11bits(binary_number):
     while (len(binary_number) != 11):
         binary_number = "0" + binary_number
     return binary_number
+
+def pause():
+    programPause = input("Press the <ENTER> key to continue...")
 
 
 # Créer un repo github et le partager avec le prof : OK
@@ -89,6 +91,7 @@ def seed_to_mnemonique_list(seed):
     liste_mot = ""
 
     for i in range(12):
+        print(tab_bin[i])
         liste_mot = liste_mot + str(liste_bip_39[int(tab_bin[i], 2)]) + ' '
 
     return liste_mot
@@ -113,13 +116,27 @@ def import_seed_mnemonique():
             index_bip39 = j + 1
             j = j + 1
 
+        print("Index = " + str(j))
         seed_import_bin = seed_import_bin + str(adjust_length_11bits(bin(j)[2:]))
+
+    hash_seed_hex = hashlib.sha256(str(seed_import_bin[0:128]).encode('utf-8')).hexdigest()
+    print(hash_seed_hex)
+    seed128_hash = bin(int(hash_seed_hex, base=16))[2:]
+    seed128_hash = adjust_length_256bits(seed128_hash)
+
+    if (seed128_hash[0:4] != seed_import_bin[128:132]):
+        print(
+            "Le seed n'est pas correct, le checksum n'est pas bon" + "\n" + "La master private key et le master chain code ne seront pas correct." + "\n")
+
+    else:
+        print("Format du seed ok" + "\n")
 
     return seed_import_bin
 
-"""imported_seed = import_seed_mnemonique()
-print("Voici le seed importé (en 132 bits) : " + imported_seed)
-"""
+#imported_seed = import_seed_mnemonique()
+
+#print("Voici le seed importé (en 132 bits) : " + imported_seed)
+
 # ===== Importer une seed et vérifier son format =====
 
 def import_seed_132bits():
@@ -132,16 +149,19 @@ def import_seed_132bits():
             print("La chaine de nombre rentrée ne fait pas 132 bits.")
 
     hash_seed_hex = hashlib.sha256(str(seed[0:128]).encode('utf-8')).hexdigest()
+
     seed128_hash = bin(int(hash_seed_hex, base=16))[2:]
     seed128_hash = adjust_length_256bits(seed128_hash)
 
-
     if(seed128_hash[0:4] != seed[128:132]):
-        print("Le seed n'est pas correct, le checksum n'est pas bon" + "\n")
+        print("Le seed n'est pas correct, le checksum n'est pas bon" + "\n" + "La master private key et le master chain code ne seront pas correct." + "\n")
+
     else:
         print("Format du seed ok" + "\n")
 
-import_seed_132bits()
+    return seed
+
+#seed = import_seed_132bits()
 
 
 # ===== Extraire la master private key et le master chain code =====
@@ -177,3 +197,59 @@ def extract_master_chain_code(seed):
 
 print("Master Chain Code :  " + str(extract_master_chain_code(seed_bin)))
 
+
+
+
+def menu():
+    os.system("cls")
+    choix = ''
+    seed_present = False
+    seed = ''
+
+    while (choix != '0'):
+        print("1 - Générer un seed aléatoire")
+        print("2 - Importer un seed ")
+        print("3 - Importer un seed mnémonique")
+        print('4 - Récuperer la Master Private Key')
+        print('5 - Récuperer le Master Chain Code')
+        print('6 - Afficher le seed en mnémonique')
+        print('0 - Exit')
+        print("\n" + "Saisir l'action que vous souhaitez réaliser.")
+
+        choix = input()
+        if(choix == '1'):
+            os.system("cls")
+            random_bin = random_number_seed()
+            random_hash_bin = hash_sha256_number(random_bin)
+            seed = get_seed(random_bin, random_hash_bin)
+            seed_present = True
+            print("Voici le seed : " + str(seed))
+        elif(choix == '2'):
+            os.system("cls")
+            seed = import_seed_132bits()
+            seed_present = True
+            print("Voici le seed : " + str(seed))
+        elif(choix == '3'):
+            os.system("cls")
+            seed = import_seed_mnemonique()
+            seed_present = True
+            print("Voici le seed : " + str(seed))
+        elif(choix == '4' and seed_present == True):
+            os.system("cls")
+            mpv = extract_master_private_key(seed)
+            print("Master Private Key : " + str(mpv))
+        elif(choix == '5' and seed_present == True):
+            os.system("cls")
+            mcc = extract_master_chain_code(seed)
+            print("Master Chain Code : " + str(mcc))
+        elif(choix == '6'):
+            liste_mot = seed_to_mnemonique_list(seed)
+            print("Voici la liste de mot associée au seed : " + liste_mot + "\n")
+
+        pause()
+        os.system("cls")
+
+    print("Au revoir !")
+
+
+menu()
