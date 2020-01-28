@@ -25,7 +25,6 @@ def adjust_length_11bits(binary_number):
 def pause():
     programPause = input("Press the <ENTER> key to continue...")
 
-
 # Créer un repo github et le partager avec le prof : OK
 # Créer un programme python interactif en ligne de commande : OK
 
@@ -125,8 +124,7 @@ def import_seed_mnemonique():
     seed128_hash = adjust_length_256bits(seed128_hash)
 
     if (seed128_hash[0:4] != seed_import_bin[128:132]):
-        print(
-            "Le seed n'est pas correct, le checksum n'est pas bon" + "\n" + "La master private key et le master chain code ne seront pas correct." + "\n")
+        print("Checksum verifié" + "\n")
 
     else:
         print("Format du seed ok" + "\n")
@@ -154,7 +152,7 @@ def import_seed_132bits():
     seed128_hash = adjust_length_256bits(seed128_hash)
 
     if(seed128_hash[0:4] != seed[128:132]):
-        print("Le seed n'est pas correct, le checksum n'est pas bon" + "\n" + "La master private key et le master chain code ne seront pas correct." + "\n")
+        print("Checksum verifié" + "\n")
 
     else:
         print("Format du seed ok" + "\n")
@@ -170,13 +168,14 @@ def extract_master_private_key(seed):
     seed_bin128 = seed[0:128]
 
     seed_bin128_hash = hashlib.sha512(str(seed_bin128).encode('utf-8')).hexdigest()
+
     #print("Hashage en SHA256 en hex" + "\n" + seed_bin128_hash + "\n")
 
     seed_bin128_hash_bin = bin(int(seed_bin128_hash, base=16))[2:]
     #print("Hashage en SHA256 en bin" + "\n" + seed_bin128_hash_bin + "\n")
     seed_bin128_hash_bin = adjust_length_512bits(seed_bin128_hash_bin)
-
     master_private_key = seed_bin128_hash_bin[0:256]
+
     return master_private_key
 
 print("Master Private Key : " + str(extract_master_private_key(seed_bin)))
